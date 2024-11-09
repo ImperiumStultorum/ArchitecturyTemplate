@@ -2,17 +2,17 @@
   "_comment": "https://github.com/QuiltMC/rfcs/blob/main/specification/0002-quilt.mod.json.md",
   "schema_version": 1,
   "mixin": [
-    "examplemod.mixins.json",
-    "examplemod-common.mixins.json"
+    "${mod_id}.mixins.json",
+    "${mod_id}-common.mixins.json"
   ],
   "quilt_loader": {
     "metadata": {
-      "name": "Example Mod",
-      "description": "This is an example description! Tell everyone what your mod is about!",
-      "license": "CC0-1.0",
-      "authors": ["Me!"],
+      "name": "${name}",
+      "description": "${desc}",
+      "license": "${license}",
+      "authors": ["ImperiumStultorum"],
       "contact": {
-        "sources": "https://github.com/architectury/architectury-templates"
+        "sources": "${source}"
       }
     },
     "group": "${group}",
@@ -23,7 +23,7 @@
       "init": [
         {
           "adapter": "kotlin",
-          "value": "net.examplemod.quilt.ExampleModQuilt"
+          "value": "${group}.quilt.${entry_class}Quilt"
         }
       ]
     },
@@ -38,11 +38,11 @@
       },
       {
         "id": "minecraft",
-        "version": ">=${minecraft_version}"
+        "version": ">=${vMinecraft}"
       },
       {
         "id": "architectury",
-        "version": ">=${architectury_version}"
+        "version": ">=${vArchitectury}"
       }
     ]
   },

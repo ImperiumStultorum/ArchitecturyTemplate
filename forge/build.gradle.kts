@@ -14,8 +14,8 @@ loom {
         convertAccessWideners.set(true)
         extraAccessWideners.add(loom.accessWidenerPath.get().asFile.name)
 
-        mixinConfig("examplemod-common.mixins.json")
-        mixinConfig("examplemod.mixins.json")
+        mixinConfig("${getVar("mod_id")}-common.mixins.json")
+        mixinConfig("${getVar("mod_id")}.mixins.json")
     }
 }
 
@@ -30,7 +30,6 @@ configurations {
 }
 
 repositories {
-    // KFF
     maven {
         name = "Kotlin for Forge"
         setUrl("https://thedarkcolour.github.io/KotlinForForge/")
@@ -38,30 +37,42 @@ repositories {
 }
 
 dependencies {
-    forge("net.minecraftforge:forge:${rootProject.property("forge_version")}")
-    // Remove the next line if you don't want to depend on the API
-    modApi("dev.architectury:architectury-forge:${rootProject.property("architectury_version")}")
+    forge("net.minecraftforge:forge:${parseVarStr("{vMinecraft}-{vForge}")}")
+    modApi("dev.architectury:architectury-forge:${getVar("vArchitectury")}")
 
     common(project(":common", "namedElements")) { isTransitive = false }
     shadowCommon(project(":common", "transformProductionForge")) { isTransitive = false }
 
-    // Kotlin For Forge
-    implementation("thedarkcolour:kotlinforforge:${rootProject.property("kotlin_for_forge_version")}")
+    implementation("thedarkcolour:kotlinforforge:${getVar("vForgeKotlin")}")
 }
 
 tasks.processResources {
-    inputs.property("group", rootProject.property("maven_group"))
+    inputs.property("group", getVar("maven_group"))
     inputs.property("version", project.version)
 
     filesMatching("META-INF/mods.toml") {
         expand(mapOf(
-            "group" to rootProject.property("maven_group"),
+            "group" to getVar("maven_group"),
             "version" to project.version,
+            "name" to getVar("human_name"),
+            "desc" to getVar("human_desc"),
+            "source" to getVar("source"),
+            "license" to getVar("license"),
 
-            "mod_id" to rootProject.property("mod_id"),
-            "minecraft_version" to rootProject.property("minecraft_version"),
-            "architectury_version" to rootProject.property("architectury_version"),
-            "kotlin_for_forge_version" to rootProject.property("kotlin_for_forge_version")
+            "mod_id" to getVar("mod_id"),
+            "vMinecraft" to getVar("vMinecraft"),
+            "vArchitectury" to getVar("vArchitectury"),
+            "vForgeKotlin" to getVar("vForgeKotlin")
+        ))
+    }
+    filesMatching("${getVar("mod_id")}.mixins.json") {
+        expand(mapOf(
+            "maven_group" to getVar("maven_group")
+        ))
+    }
+    filesMatching("pack.mcmeta") {
+        expand(mapOf(
+            "name" to getVar("human_name")
         ))
     }
 }
@@ -95,4 +106,15 @@ components.getByName("java") {
     this.withVariantsFromConfiguration(project.configurations["shadowRuntimeElements"]) {
         skip()
     }
+}
+
+fun parseVarStr(format: String): String {
+    val parseVarRgx = Regex("\\{([^{}]+)\\}")
+    return parseVarRgx.replace(format) { match ->
+        return@replace getVar(match.groups[1]!!.value)
+    }
+}
+
+fun getVar(name: String): String {
+    return rootProject.property(name).toString()
 }

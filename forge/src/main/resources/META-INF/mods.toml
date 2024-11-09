@@ -1,16 +1,14 @@
 modLoader = "kotlinforforge"
 loaderVersion = "[4,)"
-#issueTrackerURL = ""
-license = "Insert License Here"
+issueTrackerURL = "${source}/issues"
+license = "${license}"
 
 [[mods]]
 modId = "${mod_id}"
 version = "${version}"
-displayName = "Example Mod"
-authors = "Me!"
-description = '''
-This is an example description! Tell everyone what your mod is about!
-'''
+displayName = "${name}"
+authors = "ImperiumStultorum"
+description = "${desc}"
 #logoFile = ""
 
 [[dependencies.${mod_id}]]
@@ -23,20 +21,20 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[${minecraft_version},)"
+versionRange = "[${vMinecraft},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.${mod_id}]]
 modId = "architectury"
 mandatory = true
-versionRange = "[${architectury_version},)"
+versionRange = "[${vArchitectury},)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.${mod_id}]]
 modId = "kotlinforforge"
 mandatory = true
-versionRange = "[${kotlin_for_forge_version}]"
+versionRange = "[${vForgeKotlin}]"
 ordering = "AFTER"
 side = "BOTH"

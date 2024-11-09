@@ -2,14 +2,14 @@ import net.fabricmc.loom.api.LoomGradleExtensionAPI
 
 plugins {
     java
-    kotlin("jvm") version "1.8.22"
+    kotlin("jvm") version "2.0.21" // {vKotlin}
     id("architectury-plugin") version "3.4-SNAPSHOT"
-    id("dev.architectury.loom") version "1.2-SNAPSHOT" apply false
+    id("dev.architectury.loom") version "1.7-SNAPSHOT" apply false
     id("com.github.johnrengelman.shadow") version "8.1.1" apply false
 }
 
 architectury {
-    minecraft = rootProject.property("minecraft_version").toString()
+    minecraft = getVar("vMinecraft")
 }
 
 subprojects {
@@ -19,13 +19,8 @@ subprojects {
 
 
     dependencies {
-        "minecraft"("com.mojang:minecraft:${project.property("minecraft_version")}")
-        // The following line declares the mojmap mappings, you may use other mappings as well
-        "mappings"(
-            loom.officialMojangMappings()
-        )
-        // The following line declares the yarn mappings you may select this one as well.
-        // "mappings"("net.fabricmc:yarn:1.18.2+build.3:v2")
+        "minecraft"("com.mojang:minecraft:${getVar("vMinecraft")}")
+        "mappings"("net.fabricmc:yarn:${parseVarStr("{vMinecraft}+{vMappings}")}:v2")
     }
 }
 
@@ -35,17 +30,12 @@ allprojects {
     apply(plugin = "architectury-plugin")
     apply(plugin = "maven-publish")
 
-    base.archivesName.set(rootProject.property("archives_base_name").toString())
-    //base.archivesBaseName = rootProject.property("archives_base_name").toString()
-    version = rootProject.property("mod_version").toString()
-    group = rootProject.property("maven_group").toString()
+    base.archivesName.set(getVar("archives_base_name"))
+    version = getVar("mod_version")
+    group = getVar("maven_group")
 
     repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
+
     }
 
     dependencies {
@@ -63,4 +53,15 @@ allprojects {
     java {
         withSourcesJar()
     }
+}
+
+fun parseVarStr(format: String): String {
+    val parseVarRgx = Regex("\\{([^{}]+)\\}")
+    return parseVarRgx.replace(format) { match ->
+        return@replace getVar(match.groups[1]!!.value)
+    }
+}
+
+fun getVar(name: String): String {
+    return rootProject.property(name).toString()
 }

@@ -3,9 +3,6 @@ plugins {
 }
 
 repositories {
-    maven {
-        url = uri("https://maven.quiltmc.org/repository/release/")
-    }
 }
 
 architectury {
@@ -28,10 +25,11 @@ configurations {
 }
 
 dependencies {
-    modImplementation("net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}")
-    modApi("net.fabricmc.fabric-api:fabric-api:${rootProject.property("fabric_api_version")}")
-    // Remove the next line if you don't want to depend on the API
-    modApi("dev.architectury:architectury-fabric:${rootProject.property("architectury_version")}")
+    modImplementation("net.fabricmc:fabric-loader:${getVar("vFabricLoader")}")
+    modApi("net.fabricmc.fabric-api:fabric-api:${parseVarStr("{vFAPI}+{vMinecraft}")}")
+    modApi("dev.architectury:architectury-fabric:${getVar("vArchitectury")}")
+    modImplementation("net.fabricmc:fabric-language-kotlin:${parseVarStr("{vFabricKotlin}+kotlin.{vKotlin}")}")
+
 
     common(project(":common", "namedElements")) {
         isTransitive = false
@@ -45,24 +43,31 @@ dependencies {
     shadowCommon(project(":fabric-like", "transformProductionFabric")) {
         isTransitive = false
     }
-
-    // Fabric Kotlin
-    modImplementation("net.fabricmc:fabric-language-kotlin:${rootProject.property("fabric_kotlin_version")}")
 }
 
 tasks.processResources {
-    inputs.property("group", rootProject.property("maven_group"))
+    inputs.property("group", getVar("maven_group"))
     inputs.property("version", project.version)
 
     filesMatching("fabric.mod.json") {
         expand(mapOf(
-            "group" to rootProject.property("maven_group"),
+            "group" to getVar("maven_group"),
             "version" to project.version,
+            "name" to getVar("human_name"),
+            "desc" to getVar("human_desc"),
+            "source" to getVar("source"),
+            "license" to getVar("license"),
 
-            "mod_id" to rootProject.property("mod_id"),
-            "minecraft_version" to rootProject.property("minecraft_version"),
-            "architectury_version" to rootProject.property("architectury_version"),
-            "fabric_kotlin_version" to rootProject.property("fabric_kotlin_version")
+            "mod_id" to getVar("mod_id"),
+            "entry_class" to getVar("entry_class"),
+            "vMinecraft" to getVar("vMinecraft"),
+            "vArchitectury" to getVar("vArchitectury"),
+            "vFabricKotlin" to parseVarStr("{vFabricKotlin}+kotlin.{vKotlin}")
+        ))
+    }
+    filesMatching("${getVar("mod_id")}.mixins.json") {
+        expand(mapOf(
+            "maven_group" to getVar("maven_group")
         ))
     }
 }
@@ -95,4 +100,15 @@ components.getByName("java") {
     this.withVariantsFromConfiguration(project.configurations["shadowRuntimeElements"]) {
         skip()
     }
+}
+
+fun parseVarStr(format: String): String {
+    val parseVarRgx = Regex("\\{([^{}]+)\\}")
+    return parseVarRgx.replace(format) { match ->
+        return@replace getVar(match.groups[1]!!.value)
+    }
+}
+
+fun getVar(name: String): String {
+    return rootProject.property(name).toString()
 }

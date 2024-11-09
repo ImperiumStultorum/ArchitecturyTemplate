@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 plugins {
     id("com.github.johnrengelman.shadow")
 }
@@ -28,15 +30,17 @@ configurations {
 }
 
 dependencies {
-    modImplementation("org.quiltmc:quilt-loader:${rootProject.property("quilt_loader_version")}")
-    modApi("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${rootProject.property("quilt_fabric_api_version")}")
-    // Remove the next few lines if you don't want to depend on the API
-    modApi("dev.architectury:architectury-fabric:${rootProject.property("architectury_version")}") {
-        // We must not pull Fabric Loader from Architectury Fabric
+    modImplementation("org.quiltmc:quilt-loader:${getVar("vQuiltLoader")}")
+    modApi("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${parseVarStr("{vQFAPI}+{vFAPI}-{vMinecraft}")}")
+    modApi("org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
+    // feels wierd but seemingly necessary
+    modApi("org.quiltmc.quilt-kotlin-libraries:core:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
+    modApi("org.quiltmc.quilt-kotlin-libraries:library:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
+
+    modApi("dev.architectury:architectury-fabric:${getVar("vArchitectury")}") {
         exclude("net.fabricmc")
         exclude("net.fabricmc.fabric-api")
     }
-    modApi("org.quiltmc:qsl:${rootProject.property("quilt_standard_library_version")}")
 
     common(project(":common", "namedElements")) {
         isTransitive = false
@@ -50,27 +54,38 @@ dependencies {
     shadowCommon(project(":fabric-like", "transformProductionQuilt")) {
         isTransitive = false
     }
-
-    modApi("org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries:${rootProject.property("quilt_kotlin_libraries_version")}")
 }
 
 tasks.processResources {
-    inputs.property("group", rootProject.property("maven_group"))
+    inputs.property("group", getVar("maven_group"))
     inputs.property("version", project.version)
 
     filesMatching("quilt.mod.json") {
         expand(mapOf(
-            "group" to rootProject.property("maven_group"),
+            "group" to getVar("maven_group"),
             "version" to project.version,
+            "name" to getVar("human_name"),
+            "desc" to getVar("human_desc"),
+            "source" to getVar("source"),
+            "license" to getVar("license"),
 
-            "mod_id" to rootProject.property("mod_id"),
-            "minecraft_version" to rootProject.property("minecraft_version"),
-            "architectury_version" to rootProject.property("architectury_version")
+            "mod_id" to getVar("mod_id"),
+            "entry_class" to getVar("entry_class"),
+            "vMinecraft" to getVar("vMinecraft"),
+            "vArchitectury" to getVar("vArchitectury"),
+            "vFabricKotlin" to parseVarStr("{vFabricKotlin}+kotlin.{vKotlin}")
+        ))
+    }
+    filesMatching("${getVar("mod_id")}.mixins.json") {
+        expand(mapOf(
+            "maven_group" to getVar("maven_group")
         ))
     }
 }
 
 tasks.shadowJar {
+    // feels weird but seemingly necessary
+    project(":common").file("src/main/resources/${getVar("mod_id")}-common.mixins.json").copyTo(project.file("build/resources/main/${getVar("mod_id")}-common.mixins.json"), true)
     exclude("architectury.common.json")
     configurations = listOf(shadowCommon)
     archiveClassifier.set("dev-shadow")
@@ -98,4 +113,15 @@ components.getByName("java") {
     this.withVariantsFromConfiguration(project.configurations["shadowRuntimeElements"]) {
         skip()
     }
+}
+
+fun parseVarStr(format: String): String {
+    val parseVarRgx = Regex("\\{([^{}]+)\\}")
+    return parseVarRgx.replace(format) { match ->
+        return@replace getVar(match.groups[1]!!.value)
+    }
+}
+
+fun getVar(name: String): String {
+    return rootProject.property(name).toString()
 }
