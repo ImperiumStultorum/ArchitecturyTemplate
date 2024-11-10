@@ -1,11 +1,8 @@
-# architectury-kotlin-template
-This is a template for an architectury mod of type forge-fabric-like-mixin written with kotlin.
-It'll automatically depend on
-[Kotlin For Forge](https://github.com/thedarkcolour/KotlinForForge) for Forge,
-[Fabric Kotlin](https://github.com/FabricMC/fabric-language-kotlin) for Fabric
-or [Quilt Kotlin](https://github.com/QuiltMC/quilt-kotlin-libraries) for Quilt.
+# ArchitecturyTemplate
+This is Imperium's template for Architecury Mods, a fork of [MrCreativ3001's template](https://github.com/MrCreativ3001/architectury-kotlin-template)
+It'll automatically depend on [Kotlin For Forge](https://github.com/thedarkcolour/KotlinForForge) for Forge, [Fabric Language Kotlin](https://github.com/FabricMC/fabric-language-kotlin) for Fabric or [Quilt Kotlin Libraries](https://github.com/QuiltMC/quilt-kotlin-libraries) for Quilt.
 
-You can find all templates under the branch tags.
+You can find different versions on different branches.
 
 ## License
 This template is licensed under the [Creative Common Zero v1.0 license](LICENSE).
