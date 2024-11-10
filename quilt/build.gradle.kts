@@ -78,7 +78,7 @@ tasks.processResources {
             "entry_class" to getVar("entry_class"),
             "vMinecraft" to getVar("vMinecraft"),
             "vArchitectury" to getVar("vArchitectury"),
-            "vFabricKotlin" to parseVarStr("{vFabricKotlin}+kotlin.{vKotlin}")
+            "vQuiltKotlin" to parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")
         ))
     }
     filesMatching("${getVar("mod_id")}.mixins.json") {
