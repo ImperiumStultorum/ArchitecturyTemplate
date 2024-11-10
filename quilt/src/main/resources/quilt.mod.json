@@ -46,7 +46,7 @@
       },
       {
         "id": "qkl",
-        "version" : ">={vQuiltKotlin}"
+        "version" : ">=${vQuiltKotlin}"
       }
     ]
   },
