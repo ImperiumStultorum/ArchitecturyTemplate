@@ -1,4 +1,5 @@
-import net.fabricmc.loom.api.LoomGradleExtensionAPI
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     java
@@ -14,9 +15,6 @@ architectury {
 
 subprojects {
     apply(plugin = "dev.architectury.loom")
-
-    val loom = project.extensions.getByName<LoomGradleExtensionAPI>("loom")
-
 
     dependencies {
         "minecraft"("com.mojang:minecraft:${getVar("vMinecraft")}")
@@ -39,15 +37,17 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+        implementation("org.jetbrains.kotlin:kotlin-reflect:${getVar("vKotlin")}")
     }
 
     tasks.withType<JavaCompile> {
         options.encoding = "UTF-8"
         options.release.set(17)
     }
-    kotlin.target.compilations.all {
-        kotlinOptions.jvmTarget = "17"
+    tasks.withType<KotlinJvmCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 
     java {

@@ -43,6 +43,10 @@
       {
         "id": "architectury",
         "version": ">=${vArchitectury}"
+      },
+      {
+        "id": "qkl",
+        "version" : ">={vQuiltKotlin}"
       }
     ]
   },

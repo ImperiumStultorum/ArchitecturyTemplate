@@ -12,6 +12,12 @@ architectury {
 
 loom {
     accessWidenerPath.set(project(":common").loom.accessWidenerPath)
+
+    mods {
+        create(getVar("mod_id")) {
+            sourceSet("main")
+        }
+    }
 }
 
 val common: Configuration by configurations.creating

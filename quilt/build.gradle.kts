@@ -1,5 +1,3 @@
-import java.nio.file.Files
-
 plugins {
     id("com.github.johnrengelman.shadow")
 }
@@ -17,6 +15,12 @@ architectury {
 
 loom {
     accessWidenerPath.set(project(":common").loom.accessWidenerPath)
+
+    mods {
+        create(getVar("mod_id")) {
+            sourceSet("main")
+        }
+    }
 }
 
 val common: Configuration by configurations.creating
@@ -31,11 +35,12 @@ configurations {
 
 dependencies {
     modImplementation("org.quiltmc:quilt-loader:${getVar("vQuiltLoader")}")
-    modApi("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${parseVarStr("{vQFAPI}+{vFAPI}-{vMinecraft}")}")
-    modApi("org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
+    modImplementation("org.quiltmc.quilt-kotlin-libraries:quilt-kotlin-libraries:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
+    modImplementation("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${parseVarStr("{vQFAPI}+{vFAPI}-{vMinecraft}")}")
+
     // feels wierd but seemingly necessary
-    modApi("org.quiltmc.quilt-kotlin-libraries:core:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
-    modApi("org.quiltmc.quilt-kotlin-libraries:library:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
+    modImplementation("org.quiltmc.quilt-kotlin-libraries:core:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
+    modImplementation("org.quiltmc.quilt-kotlin-libraries:library:${parseVarStr("{vQuiltKotlin}+kt.{vKotlin}+flk.{vFabricKotlin}")}")
 
     modApi("dev.architectury:architectury-fabric:${getVar("vArchitectury")}") {
         exclude("net.fabricmc")
