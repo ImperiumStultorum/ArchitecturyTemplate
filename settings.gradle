@@ -13,4 +13,5 @@ include("fabric")
 include("quilt")
 include("forge")
 
+// TODO change
 rootProject.name = "templatemod"
